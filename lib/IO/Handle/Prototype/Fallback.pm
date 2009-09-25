@@ -105,6 +105,12 @@ sub _default_write_callbacks {
 
 		# these are defined in terms of a canonical print method, either write,
 		# syswrite or print
+		__write => sub {
+			my ( $self, $str ) = @_;
+			local $\;
+			local $,;
+			$self->$canonical($str);
+		},
 		print => sub {
 			my $self = shift;
 			my $ofs = defined $, ? $, : '';
