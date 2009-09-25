@@ -20,7 +20,6 @@ use FileHandle ();
 
 use Sub::Exporter -setup => {
     exports => [qw(
-
             io_to_write_cb
             io_to_read_cb
             io_to_string

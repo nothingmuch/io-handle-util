@@ -115,24 +115,15 @@ sub _default_write_callbacks {
             my $self = shift;
             my $ofs = defined $, ? $, : '';
             my $ors = defined $\ ? $\ : '';
-            $self->$canonical( join($ofs, @_) . $ors );
+            $self->__write( join($ofs, @_) . $ors );
         },
-        write => sub {
+
+        (map { $_ => sub {
             my ( $self, $str, $len, $offset ) = @_;
             $len = length($str) unless defined $len;
             $offset ||= 0;
-            local $\;
-            local $,;
-            $self->$canonical(substr($str, $offset, $len));
-        },
-        syswrite => sub {
-            my ( $self, $str, $len, $offset ) = @_;
-            $len = length($str) unless defined $len;
-            $offset ||= 0;
-            local $\;
-            local $,;
-            $self->$canonical(substr($str, $offset, $len));
-        },
+            $self->__write(substr($str, $offset, $len));
+        } } qw(write syswrite)),
 
         # wrappers for print
         printf => sub {
