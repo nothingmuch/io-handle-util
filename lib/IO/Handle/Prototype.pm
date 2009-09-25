@@ -1,0 +1,60 @@
+package IO::Handle::Prototype;
+
+use strict;
+use warnings;
+
+use Carp ();
+
+use asa 'IO::Handle';
+
+sub new {
+	my ( $class, @args ) = @_;
+
+	my $cb = @args == 1 ? $args[0] : {@args};
+
+	bless {
+		cb => $cb,
+	}, $class;
+}
+
+sub _cb {
+	my $self = shift;
+	my $name = shift;
+
+	if ( my $cb = $self->{cb}{$name} ) {
+		return $self->$cb(@_);
+	} else {
+		Carp::croak("No implementation of '$name' provided for $self");
+	}
+}
+
+sub open { shift->_cb(open => @_) }
+
+sub getline { shift->_cb(getline => @_) }
+sub read { shift->_cb(read => @_) }
+sub sysread { shift->_cb(sysread => @_) }
+sub getc { shift->_cb(getc => @_) }
+
+sub say { shift->_cb(say => @_) }
+sub print { shift->_cb(print => @_) }
+sub printf { shift->_cb(printf => @_) }
+
+sub format_write { shift->_cb(format_write => @_) }
+sub write { shift->_cb(write => @_) }
+sub syswrite { shift->_cb(syswrite => @_) }
+
+sub ioctl { shift->_cb(ioctl => @_) }
+sub fcntl { shift->_cb(fcntl => @_) }
+
+sub truncate { shift->_cb(truncate => @_) }
+
+sub stat { shift->_cb(stat => @_) }
+sub fileno { shift->_cb(fileno => @_) }
+
+sub eof { shift->_cb(eof => @_) }
+
+sub close { shift->_cb(close => @_) }
+
+__PACKAGE__
+
+__END__
