@@ -19,65 +19,67 @@ use IO::Handle::Iterator ();
 use IO::Handle::Prototype::Fallback ();
 
 use Sub::Exporter -setup => {
-	exports => [qw(
+    exports => [qw(
 
-			io_to_write_cb
-			io_to_read_cb
-			io_to_string
-			io_to_array
+            io_to_write_cb
+            io_to_read_cb
+            io_to_string
+            io_to_array
 
-			io_from_any
-			io_from_ref
-			io_from_string
-			io_from_object
-			io_from_array
-			io_from_scalar_ref
-			io_from_thunk
-			io_from_getline
-			io_from_write_cb
-			io_prototype
+            io_from_any
+            io_from_ref
+            io_from_string
+            io_from_object
+            io_from_array
+            io_from_scalar_ref
+            io_from_thunk
+            io_from_getline
+            io_from_write_cb
+            io_prototype
 
-			is_real_fh
-	)],
+            is_real_fh
+    )],
     groups => {
-		io_to => [qw(
-			io_to_write_cb
-			io_to_read_cb
-			io_to_string
-			io_to_array
-		)],
+        io_to => [qw(
+            io_to_write_cb
+            io_to_read_cb
+            io_to_string
+            io_to_array
+        )],
 
-		io_from => [qw(
-			io_from_any
-			io_from_ref
-			io_from_string
-			io_from_object
-			io_from_array
-			io_from_scalar_ref
-			io_from_thunk
-			io_from_getline
-			io_from_write_cb
-			io_prototype
-		)],
+        io_from => [qw(
+            io_from_any
+            io_from_ref
+            io_from_string
+            io_from_object
+            io_from_array
+            io_from_scalar_ref
+            io_from_thunk
+            io_from_getline
+            io_from_write_cb
+            io_prototype
+        )],
 
-		coercion => [qw(
-			:io_to
-			:io_from
-		)],
+        coercion => [qw(
+            :io_to
+            :io_from
+        )],
 
-		misc => [qw(
-			is_real_fh
-		)],
-	},
+        misc => [qw(
+            is_real_fh
+        )],
+    },
 };
 
 sub io_to_write_cb {
     my $fh = io_from_any(shift);
 
     return sub {
+        local $,;
+        local $/;
         $fh->print(@_) or die autodie::exception->new(
             function => q{CORE::print}, args => [@_],
-            message => "\$E", errno => \$!,
+            message => "\$E", errno => $e,
         );
     }
 }
@@ -95,32 +97,32 @@ sub io_to_read_cb {
 sub io_to_string {
     my $thing = shift;
 
-	if ( defined $thing and not ref $thing ) {
-		return $thing;
-	} else {
-		my $fh = io_from_any($thing);
+    if ( defined $thing and not ref $thing ) {
+        return $thing;
+    } else {
+        my $fh = io_from_any($thing);
 
-		# list context is in case ->getline ignores $/,
-		# which is likely the case with ::Iterator
-		local $/;
-		return join "", <$fh>;
-	}
+        # list context is in case ->getline ignores $/,
+        # which is likely the case with ::Iterator
+        local $/;
+        return join "", <$fh>;
+    }
 }
 
 sub io_to_array {
-	my $thing = shift;
+    my $thing = shift;
 
-	if ( ref $thing eq 'ARRAY' ) {
-		return wantarray ? @$thing : $thing;
-	} else {
-		my $fh = io_from_any($thing);
+    if ( ref $thing eq 'ARRAY' ) {
+        return wantarray ? @$thing : $thing;
+    } else {
+        my $fh = io_from_any($thing);
 
-		if ( wantarray ) {
-			return <$fh>;
-		} else {
-			return [ <$fh> ];
-		}
-	}
+        if ( wantarray ) {
+            return <$fh>;
+        } else {
+            return [ <$fh> ];
+        }
+    }
 }
 
 sub io_from_any ($) {
@@ -190,24 +192,25 @@ sub io_from_scalar_ref ($) {
 sub io_from_thunk (&) {
     my $thunk = shift;
 
-	my @lines;
+    my @lines;
 
     return IO::Handle::Iterator->new(sub {
-		if ( $thunk ) {
-			@lines = $thunk->();
-			undef $thunk;
-		}
+        if ( $thunk ) {
+            @lines = $thunk->();
+            undef $thunk;
+        }
 
-		if ( @lines ) {
-			return shift @lines;
-		} else {
-			return;
-		}
+        if ( @lines ) {
+            return shift @lines;
+        } else {
+            return;
+        }
     });
 }
 
 sub io_from_getline (&) {
     my $cb = shift;
+
     return IO::Handle::Iterator->new($cb);
 }
 
@@ -241,17 +244,17 @@ sub is_real_fh ($) {
         # valid IO object inside $fh either directly or indirectly and that it
         # corresponds to a real file descriptor.
 
-		my $m_fileno = $fh->fileno;
+        my $m_fileno = $fh->fileno;
 
-		return unless defined $m_fileno;
-		return unless $m_fileno >= 0;
+        return unless defined $m_fileno;
+        return unless $m_fileno >= 0;
 
-		my $f_fileno = fileno($fh);
-		
-		return unless defined $f_fileno;
-		return unless $f_fileno >= 0;
+        my $f_fileno = fileno($fh);
 
-		return 1;
+        return unless defined $f_fileno;
+        return unless $f_fileno >= 0;
+
+        return 1;
     } else {
         # anything else, including GLOBS without IO (even if they are blessed)
         # and non GLOB objects that look like filehandle objects cannot have a
@@ -261,5 +264,7 @@ sub is_real_fh ($) {
 }
 
 __PACKAGE__
+
+# ex: set sw=4 et:
 
 __END__

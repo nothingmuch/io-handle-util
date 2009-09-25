@@ -45,3 +45,5 @@ is( $buf, "adong", "read buffer" );
 ok( $fh->eof, "eof" );
 
 done_testing;
+
+# ex: set sw=4 et:

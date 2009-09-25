@@ -8,24 +8,24 @@ use Carp ();
 use asa 'IO::Handle';
 
 sub new {
-	my ( $class, @args ) = @_;
+    my ( $class, @args ) = @_;
 
-	my $cb = @args == 1 ? $args[0] : {@args};
+    my $cb = @args == 1 ? $args[0] : {@args};
 
-	bless {
-		cb => $cb,
-	}, $class;
+    bless {
+        cb => $cb,
+    }, $class;
 }
 
 sub _cb {
-	my $self = shift;
-	my $name = shift;
+    my $self = shift;
+    my $name = shift;
 
-	if ( my $cb = $self->{cb}{$name} ) {
-		return $self->$cb(@_);
-	} else {
-		Carp::croak("No implementation of '$name' provided for $self");
-	}
+    if ( my $cb = $self->{cb}{$name} ) {
+        return $self->$cb(@_);
+    } else {
+        Carp::croak("No implementation of '$name' provided for $self");
+    }
 }
 
 sub open { shift->_cb(open => @_) }
@@ -56,5 +56,7 @@ sub eof { shift->_cb(eof => @_) }
 sub close { shift->_cb(close => @_) }
 
 __PACKAGE__
+
+# ex: set sw=4 et:
 
 __END__
