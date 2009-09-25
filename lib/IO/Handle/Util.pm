@@ -6,17 +6,17 @@ use warnings;
 use Scalar::Util ();
 
 # we use this to create errors
-use autodie ();
+#use autodie ();
 
 # perl blesses IO objects into these namespaces, make sure they are loaded
 use IO::Handle ();
 use FileHandle ();
 
 # fake handle types
-use IO::String ();
-use IO::Handle::Iterator ();
+#use IO::String ();
+#use IO::Handle::Iterator ();
 
-use IO::Handle::Prototype::Fallback ();
+#use IO::Handle::Prototype::Fallback ();
 
 use Sub::Exporter -setup => {
     exports => [qw(
@@ -77,10 +77,14 @@ sub io_to_write_cb {
     return sub {
         local $,;
         local $/;
-        $fh->print(@_) or die autodie::exception->new(
-            function => q{CORE::print}, args => [@_],
-            message => "\$E", errno => $e,
-        );
+        $fh->print(@_) or do {
+            my $e = $!;
+            require autodie;
+            die autodie::exception->new(
+                function => q{CORE::print}, args => [@_],
+                message => "\$E", errno => $e,
+            );
+        }
     }
 }
 
@@ -168,11 +172,14 @@ sub io_from_object {
 
 sub io_from_string ($) {
     my $string = shift; # make sure it's a copy, IO::String will use \$_[0]
+    require IO::String;
     return IO::String->new($string);
 }
 
 sub io_from_array (\@) {
     my $array = shift;
+
+    require IO::Handle::Iterator;
 
     # IO::Lines/IO::ScalarArray is part of IO::stringy which is considered bad.
     IO::Handle::Iterator->new(sub {
@@ -194,6 +201,8 @@ sub io_from_thunk (&) {
 
     my @lines;
 
+    require IO::Handle::Iterator;
+
     return IO::Handle::Iterator->new(sub {
         if ( $thunk ) {
             @lines = $thunk->();
@@ -211,6 +220,8 @@ sub io_from_thunk (&) {
 sub io_from_getline (&) {
     my $cb = shift;
 
+    require IO::Handle::Iterator;
+
     return IO::Handle::Iterator->new($cb);
 }
 
@@ -221,6 +232,7 @@ sub io_from_write_cb (&) {
 }
 
 sub io_prototype {
+    require IO::Handle::Prototype::Fallback;
     IO::Handle::Prototype::Fallback->new(@_);
 }
 
