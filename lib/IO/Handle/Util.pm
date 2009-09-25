@@ -16,6 +16,8 @@ use FileHandle ();
 use IO::String ();
 use IO::Handle::Iterator ();
 
+use IO::Handle::Prototype::Fallback ();
+
 use Sub::Exporter -setup => {
 	exports => [qw(
 
@@ -212,7 +214,7 @@ sub io_from_getline (&) {
 sub io_from_write_cb (&) {
     my $cb = shift;
 
-    io_prototype( print => $cb );
+    io_prototype( __write => sub { $cb->($_[1]) } );
 }
 
 sub io_prototype {

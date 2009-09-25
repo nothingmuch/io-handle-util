@@ -205,6 +205,38 @@ sub io_ok ($;$) {
 	ok( $fh->eof, "eof" );
 }
 
+{
+	my $buf = '';
+
+	my $fh = io_from_write_cb {
+		$buf .= $_[0];
+	};
+
+	io_ok( $fh, "write cb" );
+
+	$fh->print("foo");
+	is( $buf, "foo", "print" );
+
+	$buf = '';
+	local $\ = "bar";
+	$fh->print("baz");
+	is( $buf, 'bazbar', "respects ORS" );
+
+	$buf = '';
+	$fh->say("baz");
+	is( $buf, "baz\n", "say localizes ORS" );
+
+	$buf = '';
+	local $, = ", ";
+	$\ = "\n";
+	$fh->print(qw(foo bar gorch));
+	is( $buf, "foo, bar, gorch\n", "respects OFS" );
+
+	$buf = '';
+	$fh->write("foobar", 4, 2);
+	is( $buf, 'obar', "handles offset/length in write" );
+}
+
 foreach my $fake (
 	IO::String->new("blah"),
 	IO::String->new(do { my $x = "blah"; \$x }),

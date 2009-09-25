@@ -15,6 +15,8 @@ sub new {
 	);
 }
 
+sub __write { shift->_cb(__write => @_) }
+
 sub _process_callbacks {
 	my ( $class, %user_cb ) = @_;
 
