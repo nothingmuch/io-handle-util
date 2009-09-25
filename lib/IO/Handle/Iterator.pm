@@ -92,7 +92,7 @@ sub getlines {
 }
 
 package IO::Handle::Iterator::Buffered; # FIXME IO::Handle::BufferMixin?
-use base qw(IO::Handle::Iterator);
+use parent qw(IO::Handle::Iterator);
 
 no warnings 'uninitialized';
 

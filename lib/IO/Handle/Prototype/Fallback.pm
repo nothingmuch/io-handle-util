@@ -5,7 +5,7 @@ use warnings;
 
 use Carp ();
 
-use base qw(IO::Handle::Prototype);
+use parent qw(IO::Handle::Prototype);
 
 sub new {
 	my ( $class, @args ) = @_;
