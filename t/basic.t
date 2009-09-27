@@ -9,6 +9,13 @@ use ok 'IO::Handle::Util' => qw(:all);
 
 use Scalar::Util qw(blessed);
 
+ok( IO::Handle->can("print"), "IO::Handle loaded" );
+ok( FileHandle->can("tell"), "FileHandle loaded" );
+
+ok( !blessed(*STDIN), "STDIN not blessed" );
+eval { STDIN->tell };
+is( $@, '', "but responds to methods" );
+
 sub new_fh {
     my ( $mode, $string ) = @_;
     open my $fh, $mode, \$string;
