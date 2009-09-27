@@ -253,13 +253,13 @@ sub is_real_fh ($) {
 
         my $m_fileno = $fh->fileno;
 
-        return unless defined $m_fileno;
-        return unless $m_fileno >= 0;
+        return '' unless defined $m_fileno;
+        return '' unless $m_fileno >= 0;
 
         my $f_fileno = fileno($fh);
 
-        return unless defined $f_fileno;
-        return unless $f_fileno >= 0;
+        return '' unless defined $f_fileno;
+        return '' unless $f_fileno >= 0;
 
         return 1;
     } else {
