@@ -156,7 +156,7 @@ sub io_ok ($;$) {
 }
 
 {
-    my $fh = io_from_thunk {
+    my $fh = io_from_thunk sub {
         return "foo\nbar\n";
     };
 
@@ -169,7 +169,7 @@ sub io_ok ($;$) {
 }
 
 {
-    my $fh = io_from_thunk {
+    my $fh = io_from_thunk sub {
         return qw(
             foo
             bar
@@ -188,7 +188,7 @@ sub io_ok ($;$) {
 {
     my @array = qw(foo bar);
 
-    my $fh = io_from_getline {
+    my $fh = io_from_getline sub {
         if ( @array ) {
             return shift @array;
         } else {
@@ -208,7 +208,7 @@ sub io_ok ($;$) {
 {
     my $buf = '';
 
-    my $fh = io_from_write_cb {
+    my $fh = io_from_write_cb sub {
         $buf .= $_[0];
     };
 

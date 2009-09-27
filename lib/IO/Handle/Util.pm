@@ -70,7 +70,7 @@ use Sub::Exporter -setup => {
     },
 };
 
-sub io_to_write_cb {
+sub io_to_write_cb ($) {
     my $fh = io_from_any(shift);
 
     return sub {
@@ -87,13 +87,13 @@ sub io_to_write_cb {
     }
 }
 
-sub io_to_read_cb {
+sub io_to_read_cb ($) {
     my $fh = io_from_any(shift);
 
     return sub { scalar $fh->getline() };
 }
 
-sub io_to_string {
+sub io_to_string ($) {
     my $thing = shift;
 
     if ( defined $thing and not ref $thing ) {
@@ -108,7 +108,7 @@ sub io_to_string {
     }
 }
 
-sub io_to_array {
+sub io_to_array ($) {
     my $thing = shift;
 
     if ( ref $thing eq 'ARRAY' ) {
@@ -144,7 +144,7 @@ sub io_from_ref ($) {
         # there is no need to bless or IO::Wrap if there's a valid IO slot
         return $ref;
     } elsif ( ref $ref eq 'ARRAY' ) {
-        return &io_from_array($ref);
+        return io_from_array($ref);
     } elsif ( ref $ref eq 'SCALAR' ) {
         return io_from_scalar_ref($ref);
     } else {
@@ -152,7 +152,7 @@ sub io_from_ref ($) {
     }
 }
 
-sub io_from_object {
+sub io_from_object ($) {
     my $obj = shift;
 
     if ( $obj->isa("IO::Handle") or $obj->can("getline") && $obj->can("print") ) {
@@ -171,7 +171,7 @@ sub io_from_string ($) {
     return IO::String->new($string);
 }
 
-sub io_from_array (\@) {
+sub io_from_array ($) {
     my $array = shift;
 
     require IO::Handle::Iterator;
@@ -191,7 +191,7 @@ sub io_from_scalar_ref ($) {
     return IO::String->new($ref);
 }
 
-sub io_from_thunk (&) {
+sub io_from_thunk ($) {
     my $thunk = shift;
 
     my @lines;
@@ -212,7 +212,7 @@ sub io_from_thunk (&) {
     });
 }
 
-sub io_from_getline (&) {
+sub io_from_getline ($) {
     my $cb = shift;
 
     require IO::Handle::Iterator;
@@ -220,7 +220,7 @@ sub io_from_getline (&) {
     return IO::Handle::Iterator->new($cb);
 }
 
-sub io_from_write_cb (&) {
+sub io_from_write_cb ($) {
     my $cb = shift;
 
     io_prototype( __write => sub { $cb->($_[1]) } );
