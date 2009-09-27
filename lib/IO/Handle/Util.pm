@@ -90,11 +90,7 @@ sub io_to_write_cb {
 sub io_to_read_cb {
     my $fh = io_from_any(shift);
 
-    if ( ref $fh eq 'IO::Handle::Iterator' ) {
-        return $fh->{cb};
-    } else {
-        return sub { scalar $fh->getline() }
-    }
+    return sub { scalar $fh->getline() };
 }
 
 sub io_to_string {
