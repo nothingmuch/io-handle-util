@@ -239,8 +239,6 @@ sub is_real_fh ($) {
 
     my $reftype = Scalar::Util::reftype($fh);
 
-    my $io = undef;
-
     if (   $reftype eq 'IO'
         or $reftype eq 'GLOB' && *{$fh}{IO}
     ) {
