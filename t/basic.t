@@ -67,7 +67,7 @@ sub new_fh {
     my $fh = new_fh "<", "foo\nbar\nbaz\ngorch";
 
     is_deeply(
-        scalar(io_to_array($fh)),
+        io_to_array($fh),
         [
             "foo\n",
             "bar\n",
@@ -78,19 +78,19 @@ sub new_fh {
     );
 
     is_deeply(
-        [ io_to_array(new_fh "<", "foo\nbar\nbaz\n") ],
+        [ io_to_list(new_fh "<", "foo\nbar\nbaz\n") ],
         [ "foo\n", "bar\n", "baz\n" ],
-        "list context",
+        "io_to_list",
     );
 
     is_deeply(
-        scalar(io_to_array([qw(foo bar)])),
+        io_to_array([qw(foo bar)]),
         [qw(foo bar)],
         "passthrough",
     );
 
     is_deeply(
-        [io_to_array([qw(foo bar)])],
+        [io_to_list([qw(foo bar)])],
         [qw(foo bar)],
         "passthrough list context",
     );

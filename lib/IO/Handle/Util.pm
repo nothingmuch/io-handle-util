@@ -3,6 +3,8 @@ package IO::Handle::Util;
 use strict;
 use warnings;
 
+use warnings::register;
+
 use Scalar::Util ();
 
 # we use this to create errors
@@ -24,6 +26,7 @@ use Sub::Exporter -setup => {
             io_to_read_cb
             io_to_string
             io_to_array
+            io_to_list
 
             io_from_any
             io_from_ref
@@ -44,6 +47,7 @@ use Sub::Exporter -setup => {
             io_to_read_cb
             io_to_string
             io_to_array
+            io_to_list
         )],
 
         io_from => [qw(
@@ -108,19 +112,29 @@ sub io_to_string ($) {
     }
 }
 
+sub io_to_list ($) {
+    my $thing = shift;
+
+    warnings::warnif(__PACKAGE__, "io_to_list not invoked in list context")
+        unless wantarray;
+
+    if ( ref $thing eq 'ARRAY' ) {
+        return @$thing;
+    } else {
+        my $fh = io_from_any($thing);
+        return <$fh>;
+    }
+}
+
 sub io_to_array ($) {
     my $thing = shift;
 
     if ( ref $thing eq 'ARRAY' ) {
-        return wantarray ? @$thing : $thing;
+        return $thing;
     } else {
         my $fh = io_from_any($thing);
 
-        if ( wantarray ) {
-            return <$fh>;
-        } else {
-            return [ <$fh> ];
-        }
+        return [ <$fh> ];
     }
 }
 
