@@ -60,7 +60,6 @@ use Sub::Exporter -setup => {
             io_from_thunk
             io_from_getline
             io_from_write_cb
-            io_prototype
         )],
 
         coercion => [qw(
@@ -69,6 +68,7 @@ use Sub::Exporter -setup => {
         )],
 
         misc => [qw(
+            io_prototype
             is_real_fh
         )],
     },
