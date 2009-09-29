@@ -161,6 +161,8 @@ sub io_from_ref ($) {
         return io_from_array($ref);
     } elsif ( ref $ref eq 'SCALAR' ) {
         return io_from_scalar_ref($ref);
+    } elsif ( ref $ref eq 'CODE' ) {
+        Carp::croak("Coercing an IO object from a coderef is ambiguous. Please use io_from_thunk, io_from_getline or io_from_write_cb directly.");
     } else {
         Carp::croak("Don't know how to make an IO from $ref");
     }
