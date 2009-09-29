@@ -168,7 +168,7 @@ sub check_read_fh {
 
         ok( !$fh->eof, "not eof" );
 
-        my @lines = $fh->getlines;
+        my @lines = <$fh>;
 
         ok( $fh->eof, "eof reached" );
 
