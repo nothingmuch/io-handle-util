@@ -27,6 +27,7 @@ use Sub::Exporter -setup => {
             io_to_string
             io_to_array
             io_to_list
+            io_to_glob
 
             io_from_any
             io_from_ref
@@ -48,6 +49,7 @@ use Sub::Exporter -setup => {
             io_to_string
             io_to_array
             io_to_list
+            io_to_glob
         )],
 
         io_from => [qw(
@@ -135,6 +137,24 @@ sub io_to_array ($) {
         my $fh = io_from_any($thing);
 
         return [ <$fh> ];
+    }
+}
+
+sub io_to_glob {
+    my $thing = shift;
+
+    my $fh = io_from_any($thing);
+
+    if ( ref($fh) eq 'GLOB' or ref($fh) eq 'IO::Handle' ) {
+        return $fh;
+    } else {
+        # wrap in a tied handle
+        my $glob = Symbol::gensym();
+
+        require IO::Handle::Util::Tie;
+        tie *$glob, 'IO::Handle::Util::Tie', $fh;
+
+        return $glob;
     }
 }
 
@@ -446,6 +466,19 @@ Warns if not invoked in list context.
 
 If an array reference was passed it is dereferenced an its elements are
 returned.
+
+=item io_to_glob $thing
+
+If the filehandle is an unblessed glob returns it as is, otherwise returns a
+new glob which is tied to delegate to the OO interface.
+
+This lets you use most of the builtins without the method syntax:
+
+    my $fh = io_to_glob($some_kind_of_OO_handle);
+
+    while ( defined( my $line = <$fh> ) ) {
+        ...
+    }
 
 =back
 

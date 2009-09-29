@@ -57,6 +57,44 @@ sub new_fh {
 {
     my $fh = new_fh "<", "foo\nbar\n";
 
+    is( ref($fh), 'GLOB', "PerlIO handle is a glob" );
+
+    is( io_to_glob($fh), $fh, 'io_to_glob isa passthrough' );
+}
+
+{
+    my $fh = io_from_array [qw(foo bar)];
+
+    isnt( ref($fh), 'GLOB' );
+
+    my $glob = io_to_glob($fh);
+
+    is( ref($glob), "GLOB", "io_to_glob" );
+
+    isa_ok( tied(*$glob), "IO::Handle::Util::Tie", "tied" );
+
+    is_deeply(
+        [ <$glob> ],
+        [qw(foo bar)],
+        "readline builtin",
+    );
+}
+
+{
+    my $fh = io_from_array [qw(foo bar)];
+
+    isnt( ref($fh), 'GLOB' );
+
+    is_deeply(
+        [ <$fh> ],
+        [qw(foo bar)],
+        "readline builtin through overloading",
+    );
+}
+
+{
+    my $fh = new_fh "<", "foo\nbar\n";
+
     my $sub = io_to_read_cb($fh);
 
     is( ref $sub, 'CODE', "io_to_read_cb makes a code ref" );
