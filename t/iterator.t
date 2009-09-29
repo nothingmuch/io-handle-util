@@ -39,8 +39,20 @@ is( $buf, "quxxlal", "read buffer" );
 
 ok( !$fh->eof, "not eof" );
 
-is( $fh->read($buf, 7), 5, "read" );
-is( $buf, "adong", "read buffer" );
+is( $fh->getc, 'a', "getc" );
+
+ok( !$fh->eof, "not eof" );
+
+$fh->ungetc(ord('z'));
+
+ok( !$fh->eof, "not eof" );
+
+is( $fh->getc(), 'z', "ungetc" );
+
+ok( !$fh->eof, "not eof" );
+
+is( $fh->read($buf, 7, length($buf) + 1), 4, "read" );
+is( $buf, "quxxlal\0dong", "read buffer" );
 
 ok( $fh->eof, "eof" );
 

@@ -145,23 +145,19 @@ sub read {
     }
 
     my $read;
-    if ( $length < length($self->{buf}) ) {
-        $read = substr($self->{buf}, 0, $length, '');
-    } else {
+    if ( $length > length($self->{buf}) ) {
         $read = delete $self->{buf};
-        $length = length($read);
+    } else {
+        $read = substr($self->{buf}, 0, $length, '');
     }
 
     if ( $offset ) {
-        if ( length($_[1]) < $offset ) {
-            $_[1] .= "\0" x ( $offset - length($_[1]) );
-        }
         substr($_[1], $offset) = $read;
     } else {
         $_[1] = $read;
     }
 
-    return $length;
+    return length($read);
 }
 
 sub getline {

@@ -197,6 +197,20 @@ sub io_ok ($;$) {
 }
 
 {
+    io_ok( my $fh = io_from_any([qw(foo bar gorch)]), "from array");
+
+    isa_ok( $fh, "IO::Handle::Iterator" );
+
+    is( $fh->getline, "foo", "fake getline" );
+
+    is_deeply(
+        [ <$fh> ],
+        [ qw(bar gorch) ],
+        "getlines via readline operator",
+    );
+}
+
+{
     my $str_fh = IO::String->new("foo");
 
     can_ok( $str_fh, qw(getline print) );

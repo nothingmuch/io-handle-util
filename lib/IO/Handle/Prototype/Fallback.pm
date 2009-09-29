@@ -171,7 +171,6 @@ sub _make_read_callbacks {
             my $read;
             if ( $length > length($self->{buf}) ) {
                 $read = delete $self->{buf};
-                $length = length($read);
             } else {
                 $read = substr($self->{buf}, 0, $length, '');
             }
@@ -182,7 +181,7 @@ sub _make_read_callbacks {
                 $_[1] = $read;
             }
 
-            return $length;
+            return length($read);
         },
         eof => sub {
             my $self = shift;
