@@ -296,3 +296,210 @@ __PACKAGE__
 # ex: set sw=4 et:
 
 __END__
+
+=pod
+
+=head1 NAME
+
+IO::Handle::Util - Functions for working with L<IO::Handle> like objects.
+
+=head1 SYNOPSIS
+
+    # make something that looks like a filehandle from a random data:
+    my $io = io_from_any $some_data;
+
+    # or from a callback that returns strings:
+    my $io = io_from_getline sub { return $another_line };
+
+    # create a callback that iterates through the handle
+    my $read_cb = io_to_read_cb $io;
+
+=head1 DESCRIPTION
+
+This module provides a number of helpful routines to manipulate or create
+L<IO::Handle> like objects.
+
+=head1 EXPORTS
+
+=head2 Coercions resulting in IO objects
+
+These are available using the C<:io_from> export group.
+
+=over 4
+
+=item io_from_any $whatever
+
+Inspects the value of C<whatever> and calls the appropriate coercion function
+on it, either C<io_from_ref> or C<io_from_string>.
+
+=item io_from_ref $some_ref
+
+Depending on the reference type of C<$some_ref> invokes either
+C<io_from_object>, C<io_from_array> or C<io_from_scalar_ref>.
+
+Code references are not coerced automatically because either C<io_from_thunk>
+or C<io_from_getline> or C<io_from_write_cb> could all make sense.
+
+Globs are returned as is B<only> if they have a valid C<IO> slot.
+
+=item io_from_object $obj
+
+Depending on the class of C<$obj> either returns or coerces the object.
+
+Objects that are passed through include anything that subclasses L<IO::Handle>
+or seems to duck type (supports the C<print> and C<getline> methods, which
+might be a bit too permissive).
+
+Objects that are coerced currently only include L<Path::Class::File>, which
+will have the C<openr> method invoked on it.
+
+Anything else is an error.
+
+=over 4
+
+=item io_from_string $str
+
+Instantiates an L<IO::String> object using C<$str> as the buffer.
+
+Note that C<$str> is B<not> passed as an alias, so writing to the IO object
+will not modify string. For that see C<io_from_scalar_ref>.
+
+=item io_from_array \@array
+
+Creates an L<IO::Handle::Iterator> that will return the elements of C<@array>
+one by one.
+
+Note that a I<copy> of C<@array> is made.
+
+In order to be able to append more elements to the array or remove the ones
+that have been returned use L<IO::Handle::Iterator> yourself directly.
+
+=item io_from_scalar_ref \$str
+
+Creates an L<IO::String> object using C<$str> as the buffer.
+
+Writing to the IO object will modify C<$str>.
+
+=item io_from_thunk sub { ... }
+
+Invokes the callback once in list context the first time it's needed, and then
+returns each element of the list like C<io_from_array> would.
+
+=item io_from_getline sub { ... }
+
+Creates an L<IO::Handle::Iterator> object using the callback.
+
+=item io_from_write_cb sub { ... }
+
+Creates an L<IO::Handle::Prototype::Fallback> using the callback.
+
+The callback will always be invoked with one string argument and with the
+values of C<$,> and C<$\> localized to C<undef>.
+
+=back
+
+=head2 Coercions utilizing IO objects
+
+These coercions will actually call C<io_from_any> on their argument first. This
+allows you to do things like:
+
+    my $str = '';
+    my $sub = io_to_write_cb(\$str);
+
+    $sub->("foo");
+
+These are available using the C<:io_to> export group.
+
+=over 4
+
+=item io_to_write_cb $thing
+
+Creates a code ref that will invoke C<print> on the handle with the arguments
+to the callback.
+
+C<$,> and C<$\> will both be localized to C<undef>.
+
+=item io_to_read_cb $thing
+
+Creates a code ref that will invoke C<getline> on the handle.
+
+C<$/> will not be localized and should probably be set to a reference to a
+number if you want efficient iteration. See L<perlvar> for details.
+
+=item io_to_string $thing
+
+Slurps a string out of the IO object by reading all the data.
+
+If a string was passed it is returned as is.
+
+=item io_to_array $thing
+
+Returns an array reference containing all the lines of the IO object.
+
+If an array reference was passed it is returned as is.
+
+=item io_to_list $thing
+
+Returns the list of lines from the IO object.
+
+Warns if not invoked in list context.
+
+If an array reference was passed it is dereferenced an its elements are
+returned.
+
+=back
+
+=head2 Misc functions
+
+=over 4
+
+=item io_prototype %callbacks
+
+Given a key-value pair list of named callbacks, constructs an
+L<IO::Handle::Prototype::Fallback> object with those callbacks.
+
+For example:
+
+    my $io = io_prototype print => sub {
+        my $self = shift;
+
+        no warnings 'uninitialized';
+        $string .= join($,, @_) . $\;
+    };
+
+    $io->say("Hello"); # $string now has "Hello\n"
+
+See L<IO::Handle::Prototype::Fallback> for more details.
+
+=item is_real_fh $io
+
+Returns true if the IO handle probably could be passed to something like
+L<AnyEvent::Handle> which would break encapsulation.
+
+Checks for the following conditions:
+
+=over 4
+
+=item *
+
+The handle has a reftype of either a C<GLOB> with an C<IO> slot, or is an C<IO>
+itself.
+
+=item *
+
+The handle's C<fileno> method returns a positive number, corresponding to a
+filedescriptor.
+
+=item *
+
+The C<fileno> builtin returns the same thing as C<fileno> invoked as a method.
+
+=back
+
+If these conditions hold the handle is I<probably> OK to work with using the IO
+builtins directly, or passing the filedesctiptor to C land, instead of by
+invoking methods on it.
+
+=back
+
+=cut
