@@ -168,3 +168,38 @@ __PACKAGE__
 # ex: set sw=4 et:
 
 __END__
+
+=head1 NAME
+
+IO::Handle::Iterator - Iterator based read handle
+
+=head1 SYNOPSIS
+
+    IO::Handle::Iterator->new(sub {
+        return $next_line; # or undef on eof
+    });
+
+=head1 DESCRIPTION
+
+This class lets you define a read handle with a few fallback methods (like
+C<read>) using a single callback that behaves like C<getline>.
+
+This is similar but much simpler than:
+
+    IO::Handle::Prototype::Fallback->new(
+        __read => sub { ... },
+    );
+
+The reason being that the L<IO::Handle::Prototype::Fallback> implementation
+will try its very best to behave correctly (i.e. respect the value of C<$/>),
+whereas this implementation assumes it's fine to return things that aren't
+exactly lines from C<getline>, so the values are just passed through.
+
+=head1 READ BUFFERING
+
+When a method that requires buffering is invoked the handle is reblessed to a
+subclass which handles buffering.
+
+Calling C<getline> again on this object will return the value of the buffer and
+return to the normal iterator class.
+

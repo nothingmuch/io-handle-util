@@ -62,3 +62,25 @@ __PACKAGE__
 # ex: set sw=4 et:
 
 __END__
+
+=pod
+
+=head1 NAME
+
+IO::Handle::Prototype - base class for callback based handles.
+
+=head1 SYNOPSIS
+
+    my $fh = IO::Handle::Prototype->new(
+        getline => sub {
+            my $fh = shift;
+
+            ...
+        },
+    );
+
+=head1 DESCRIPTION
+
+You probably want L<IO::Handle::Prototype::Fallback> instead.
+
+=cut

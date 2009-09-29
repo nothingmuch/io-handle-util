@@ -318,3 +318,103 @@ __PACKAGE__
 
 __END__
 
+=pod
+
+=head1 NAME
+
+IO::Handle::Prototype::Fallback - Create L<IO::Handle> like objects using a set
+of callbacks.
+
+=head1 SYNOPSIS
+
+    my $fh = IO::Handle::Prototype::Fallback->new(
+        getline => sub {
+            my $fh = shift;
+
+            ...
+        },
+    );
+
+=head1 DESCRIPTION
+
+This class provides a way to define a filehandle based on callbacks.
+
+Fallback implementations are provided to the extent possible based on the
+provided callbacks, for both writing and reading.
+
+=head1 SPECIAL CALLBACKS
+
+This class provides two additional methods on top of L<IO::Handle>, designed to
+let you implement things with a minimal amount of baggage.
+
+The fallback methods are all best implemented using these, though these can be
+implemented in terms of Perl's standard methods too.
+
+However, to provide the most consistent semantics, it's better to do this:
+
+    IO::Handle::Prototype::Fallback->new(
+        __read => sub {
+            shift @array;
+        },
+    );
+
+Than this:
+
+    IO::Handle::Prototype::Fallback->new(
+        getline => sub {
+            shift @array;
+        },
+    );
+
+Because the fallback implementation of C<getline> implements all of the extra
+crap you'd need to handle to have a fully featured implementation.
+
+=over 4
+
+=item __read
+
+Return a chunk of data of any size (could use C<$/> or not, it depends on you,
+unlike C<getline> which probably I<should> respect the value of C<$/>).
+
+This avoids the annoying C<substr> stuff you need to do with C<read>.
+
+=item __write $string
+
+Write out a string.
+
+This is like a simplified C<print>, which can disregard C<$,> and C<$\> as well
+as multiple argument forms, and does not have the extra C<substr> annoyance of
+C<write> or C<syswrite>.
+
+=back
+
+=head1 WRAPPING
+
+If you provide a B<single> reading related callback (C<__read>, C<getline> or
+C<read>) then your callback will be used to implement all of the other reading
+primitives using a string buffer.
+
+These implementations handle C<$/> in all forms (C<undef>, ref to number and
+string), all the funny calling conventions for C<read>, etc.
+
+=head1 FALLBACKS
+
+Any callback that can be defined purely in terms of other callbacks in a way
+will be added. For instance C<getc> can be implemented in terms of C<read>,
+C<say> can be implemented in terms of C<print>, C<print> can be implemented in
+terms of C<write>, C<write> can be implemented in terms of C<print>, etc.
+
+None of these require special wrapping and will always be added if their
+dependencies are present.
+
+=head1 GLOB OVERLOADING
+
+When overloaded as a glob a tied handle will be returned. This allows you to
+use the handle in Perl's IO builtins. For instance:
+
+    my $line = <$fh>
+
+will not call the C<getline> method natively, but the tied interface arranges
+for that to happen.
+
+=cut
