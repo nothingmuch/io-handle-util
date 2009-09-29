@@ -202,6 +202,7 @@ sub io_from_array ($) {
 
 sub io_from_scalar_ref ($) {
     my $ref = shift;
+    require IO::String;
     return IO::String->new($ref);
 }
 
