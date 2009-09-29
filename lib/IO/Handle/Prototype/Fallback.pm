@@ -143,6 +143,8 @@ sub _make_read_callbacks {
         read => sub {
             my ( $self, undef, $length, $offset ) = @_;
 
+            return 0 if $self->{eof};
+
             if ( $offset and length($_[1]) < $offset ) {
                 $_[1] .= "\0" x ( $offset - length($_[1]) );
             }
