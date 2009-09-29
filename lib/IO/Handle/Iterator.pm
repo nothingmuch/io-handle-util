@@ -7,6 +7,12 @@ use Carp ();
 
 use asa 'IO::Handle';
 
+use overload '*{}' => sub {
+    my $self = shift;
+    require IO::Handle::Util;
+    return IO::Handle::Util::io_to_glob($self);
+}, fallback => 1;
+
 # error, clearerr, new_from_fd, fdopen
 
 sub new {

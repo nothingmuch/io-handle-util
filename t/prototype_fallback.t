@@ -128,7 +128,7 @@ sub check_read_fh {
 
         ok( !$fh->eof, "not eof" );
 
-        my $line = $fh->getline;
+        my $line = <$fh>;
 
         is( $line, "OH HAI\n", "getline" );
 
