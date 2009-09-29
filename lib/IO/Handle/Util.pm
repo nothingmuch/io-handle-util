@@ -190,12 +190,14 @@ sub io_from_string ($) {
 sub io_from_array ($) {
     my $array = shift;
 
+    my @array = @$array;
+
     require IO::Handle::Iterator;
 
     # IO::Lines/IO::ScalarArray is part of IO::stringy which is considered bad.
     IO::Handle::Iterator->new(sub {
-        if ( @$array ) {
-            return shift @$array;
+        if ( @array ) {
+            return shift @array;
         } else {
             return;
         }
