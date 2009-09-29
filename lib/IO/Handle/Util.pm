@@ -242,7 +242,11 @@ sub io_from_getline ($) {
 sub io_from_write_cb ($) {
     my $cb = shift;
 
-    io_prototype( __write => sub { $cb->($_[1]) } );
+    io_prototype( __write => sub {
+        local $,;
+        local $\;
+        $cb->($_[1]);
+    } );
 }
 
 sub io_prototype {
