@@ -39,6 +39,22 @@ sub new_fh {
 }
 
 {
+    my $str = '';
+    my $sub = io_to_write_cb(\$str);
+
+    $sub->("foo");
+
+    is($str, "foo", "coerced from scalar ref");
+
+    local $\ = "\n";
+    local $, = ", ";
+
+    $sub->(qw(foo bar));
+
+    is( $str, "foofoobar", "immune to ORS and OFS" );
+}
+
+{
     my $fh = new_fh "<", "foo\nbar\n";
 
     my $sub = io_to_read_cb($fh);
