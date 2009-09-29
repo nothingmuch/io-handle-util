@@ -79,7 +79,7 @@ sub io_to_write_cb ($) {
 
     return sub {
         local $,;
-        local $/;
+        local $\;
         $fh->print(@_) or do {
             my $e = $!;
             require autodie;
