@@ -112,12 +112,13 @@ sub getc {
 sub ungetc {
     my ( $self, $ord ) = @_;
     substr($self->{buf}, 0, 0, chr($ord)); # yuck
+    return;
 }
 
 sub sysread { shift->read(@_) }
 
 sub read {
-    my ( $self, $buf, $length ) = @_;
+    my ( $self, $buf, $length, $offset ) = @_;
 
     while (length($self->{buf}) < $length) {
         if ( defined(my $next = $self->_cb) ) {
@@ -125,14 +126,29 @@ sub read {
         } else {
             # data ended but still under $length, return all that remains and
             # empty the buffer
-            $_[1] = $self->{buf};
+            my $ret = length($self->{buf});
+            substr($_[1], $offset||0) = $self->{buf};
             $self->{buf} = '';
-            return length($_[1]);
+            return $ret;
         }
     }
 
-    # normal flow, got data
-    $_[1] = substr($self->{buf}, 0, $length, '');
+    my $read;
+    if ( $length < length($self->{buf}) ) {
+        $read = substr($self->{buf}, 0, $length, '');
+    } else {
+        $read = delete $self->{buf};
+        $length = length($read);
+    }
+
+    if ( $offset ) {
+        if ( length($_[1]) < $offset ) {
+            $_[1] .= "\0" x ( $offset - length($_[1]) );
+        }
+        substr($_[1], $offset) = $read;
+    } else {
+        $_[1] = $read;
+    }
 
     return $length;
 }

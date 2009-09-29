@@ -31,9 +31,11 @@ sub _cb {
 sub open { shift->_cb(open => @_) }
 
 sub getline { shift->_cb(getline => @_) }
+sub getlines { shift->_cb(getlines => @_) }
 sub read { shift->_cb(read => @_) }
 sub sysread { shift->_cb(sysread => @_) }
 sub getc { shift->_cb(getc => @_) }
+sub ungetc { shift->_cb(ungetc => @_) }
 
 sub say { shift->_cb(say => @_) }
 sub print { shift->_cb(print => @_) }
