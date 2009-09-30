@@ -539,4 +539,22 @@ invoking methods on it.
 
 =back
 
+=head1 SEE ALSO
+
+L<IO::Handle>, L<FileHandle>, L<IO::String>, L<perlio>, L<perlfunc/open>
+
+=head1 VERSION CONTROL
+
+L<http://github.com/nothingmuch/io-handle-util>
+
+=head1 AUTHOR
+
+Yuval Kogman
+
+=head1 COPYRIGHT & LICENSE
+
+	Copyright (c) 2009 Yuval Kogman. All rights reserved
+	This program is free software; you can redistribute
+	it and/or modify it under the same terms as Perl itself.
+
 =cut
