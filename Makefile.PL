@@ -17,8 +17,9 @@ WriteMakefile(
 		'Sub::Exporter' => 0,
 		'asa' => 0,
 		'parent' => 0,
+		'IO::String' => 0,
 
 		'Test::use::ok' => 0,
-		'Test::More' => 0,
+		'Test::More' => 0.88,
     },
 );
