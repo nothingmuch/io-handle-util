@@ -379,8 +379,6 @@ will have the C<openr> method invoked on it.
 
 Anything else is an error.
 
-=over 4
-
 =item io_from_string $str
 
 Instantiates an L<IO::String> object using C<$str> as the buffer.
