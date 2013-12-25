@@ -532,7 +532,7 @@ The C<fileno> builtin returns the same thing as C<fileno> invoked as a method.
 =back
 
 If these conditions hold the handle is I<probably> OK to work with using the IO
-builtins directly, or passing the filedesctiptor to C land, instead of by
+builtins directly, or passing the filedescriptor to C land, instead of by
 invoking methods on it.
 
 =back
